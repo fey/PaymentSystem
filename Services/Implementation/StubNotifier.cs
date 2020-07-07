@@ -1,14 +1,27 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using PaymentSystem.Services.Interfaces;
 
 namespace PaymentSystem.Services.Implementations
 {
-    class StubNotifier : INotifier
+    class StubNotifier<T>: INotifier<T>
     {
-        public Task SendNotification(Uri target)
+        private void DoSendNotification(Uri target, T message)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Sending notification to {target}...");
+            Thread.Sleep(10000);
+            Console.WriteLine($"Notification to {target} was successfully sent.");
+        }
+
+        public Task SendNotification(Uri target, T message)
+        {
+            if (
+                target.Scheme != Uri.UriSchemeHttp &&
+                target.Scheme != Uri.UriSchemeHttps
+            )
+                return null;
+            return Task.Run(() => DoSendNotification(target, message));
         }
     }
 }

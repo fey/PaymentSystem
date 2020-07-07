@@ -1,7 +1,8 @@
 namespace PaymentSystem.Model
 {
-    class PaymentDetails
+    public class Payment
     {
-        
+        public decimal PaymentSum { get; set; }
+        string Purpose { get; set; }
     }
 }
