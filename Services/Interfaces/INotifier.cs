@@ -1,10 +1,9 @@
 using System;
-using System.Threading.Tasks;
 
 namespace PaymentSystem.Services.Interfaces
 {
     public interface INotifier<T>
     {
-        Task SendNotification(Uri target, T message);
+        void SendAsyncNotification(Uri target, T message);
     }
 }

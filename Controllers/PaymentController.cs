@@ -67,10 +67,7 @@ namespace PaymentSystem.Controllers
                         !String.IsNullOrWhiteSpace(callback) &&
                         Uri.IsWellFormedUriString(callback, UriKind.Absolute)
                     )
-                    {
-                        Uri callbackUrl = new Uri(callback);
-                        _notifier.SendNotification(callbackUrl, sessionId);
-                    }
+                        _notifier.SendAsyncNotification(new Uri(callback), sessionId);
                     return
                         _repository.MakePayment(sessionId, cardDetails, callback) ? 
                         (IActionResult) Ok() : BadRequest(new Error(){
