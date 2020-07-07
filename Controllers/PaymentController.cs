@@ -63,11 +63,7 @@ namespace PaymentSystem.Controllers
                     });
                 case CardValidationResults.Valid:
                 {
-                    if (
-                        !String.IsNullOrWhiteSpace(callback) &&
-                        Uri.IsWellFormedUriString(callback, UriKind.Absolute)
-                    )
-                        _notifier.SendAsyncNotification(new Uri(callback), sessionId);
+                    TrySendNotification(sessionId, callback);
                     return
                         _repository.MakePayment(sessionId, cardDetails, callback) ? 
                         (IActionResult) Ok() : BadRequest(new Error(){
@@ -82,6 +78,15 @@ namespace PaymentSystem.Controllers
                         Message = "Uh-oh, something is wrong with your card :("
                     });
             }
+        }
+
+        private async void TrySendNotification(Guid sessionId, string callback)
+        {
+            if (
+                !String.IsNullOrWhiteSpace(callback) &&
+                Uri.IsWellFormedUriString(callback, UriKind.Absolute)
+            )
+                await _notifier.SendAsyncNotification(new Uri(callback), sessionId);
         }
     }
 }

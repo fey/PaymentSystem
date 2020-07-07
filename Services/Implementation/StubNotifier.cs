@@ -14,14 +14,14 @@ namespace PaymentSystem.Services.Implementations
             Console.WriteLine($"Notification to {target} was successfully sent.");
         }
 
-        public async void SendAsyncNotification(Uri target, T message)
+        public Task SendAsyncNotification(Uri target, T message)
         {
             if (
                 target.Scheme != Uri.UriSchemeHttp &&
                 target.Scheme != Uri.UriSchemeHttps
             )
-                return;
-            await Task.Run(() => DoSendNotification(target, message));
+                return null;
+            return new Task(() => DoSendNotification(target, message));
         }
     }
 }
