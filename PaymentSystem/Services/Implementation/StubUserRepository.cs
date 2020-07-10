@@ -15,7 +15,7 @@ namespace PaymentSystem.Services.Implementations
 
         public StubUserRepository(IPassowrdHasher passwordHasher)
         {
-            _semaphore = new Semaphore(0, 1);
+            _semaphore = new Semaphore(1, 1);
             _users = new List<User>();
             _passwordHasher = passwordHasher;
         }

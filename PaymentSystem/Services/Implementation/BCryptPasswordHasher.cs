@@ -1,4 +1,6 @@
-namespace PaymentSystem.Services.Interfaces
+using PaymentSystem.Services.Interfaces;
+
+namespace PaymentSystem.Services.Implementations
 {
     public class BCryptPasswordHasher : IPassowrdHasher
     {

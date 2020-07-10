@@ -20,9 +20,10 @@ namespace PaymentSystem.Services.Implementations
 
         public List<PaymentRecord> GetPaymentHistory(DateTime start, DateTime end)
         {
-            return _payments.Values.Where(sessionDetails => 
-                sessionDetails.PaymentDateTime.Date >= start.Date &&
-                sessionDetails.PaymentDateTime.Date <= end.Date
+            return _payments.Values.Where(sessionDetails =>
+                sessionDetails.PaymentDateTime.HasValue &&
+                sessionDetails.PaymentDateTime.Value.Date >= start.Date &&
+                sessionDetails.PaymentDateTime.Value.Date <= end.Date
             ).Select(sessionDetails => new PaymentRecord(){
                 PaymentSum = sessionDetails.AssociatedPayment.PaymentSum,
                 Purpose = sessionDetails.AssociatedPayment.Purpose,

@@ -7,6 +7,6 @@ namespace PaymentSystem.Model.Dto.Payments
         public decimal PaymentSum { get; set; }
         public string Purpose { get; set; }
         public string CardNumber { get; set; }
-        public DateTime PaymentDateTime { get; set; }
+        public DateTime? PaymentDateTime { get; set; }
     }
 }
