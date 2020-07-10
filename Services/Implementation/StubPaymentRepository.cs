@@ -9,6 +9,11 @@ namespace PaymentSystem.Services.Implementations
     {
         private ConcurrentDictionary<Guid, SessionDetails> _payments;
 
+        public StubPaymentRepository()
+        {
+            _payments = new ConcurrentDictionary<Guid, SessionDetails>();
+        }
+
         public bool MakePayment(Guid sessionId, Card paymentCard, string source)
         {
             if (
