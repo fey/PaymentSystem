@@ -1,8 +1,8 @@
-namespace PaymentSystem.Model
+namespace PaymentSystem.Model.Common
 {
     public class Payment
     {
         public decimal PaymentSum { get; set; }
-        string Purpose { get; set; }
+        public string Purpose { get; set; }
     }
 }

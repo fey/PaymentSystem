@@ -1,5 +1,6 @@
 using System;
 using PaymentSystem.Model;
+using PaymentSystem.Model.Dto.Payments;
 using PaymentSystem.Services.Interfaces;
 
 namespace PaymentSystem.Services.Implementations

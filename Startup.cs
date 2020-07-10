@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,12 @@ namespace PaymentSystem
         {
             services.AddSingleton<INotifier<string>, StubNotifier<string>>();
             services.AddSingleton<IPaymentRepository, StubPaymentRepository>();
+            services.AddSingleton<IPassowrdHasher, BCryptPasswordHasher>();
+            services.AddSingleton<IUserRepository, StubUserRepository>();
             services.AddSingleton<IPaymentValidator, PaymentValidator>();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
             services.AddControllers();
         }
 
@@ -36,6 +42,7 @@ namespace PaymentSystem
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

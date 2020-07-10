@@ -1,6 +1,6 @@
 using System;
 
-namespace PaymentSystem.Model
+namespace PaymentSystem.Model.Dto.Payments
 {
     public class Date
     {

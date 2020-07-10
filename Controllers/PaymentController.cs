@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PaymentSystem.Model;
+using PaymentSystem.Model.Common;
+using PaymentSystem.Model.Dto;
+using PaymentSystem.Model.Dto.Payments;
 using PaymentSystem.Services.Interfaces;
 
 namespace PaymentSystem.Controllers
@@ -29,6 +35,13 @@ namespace PaymentSystem.Controllers
             _validator = validator;
         }
 
+        [HttpGet("history")]
+        [Authorize]
+        public ActionResult<List<PaymentRecord>> GetPaymentHistory(DateTime periodStart, DateTime periodEnd)
+        {
+            return _repository.GetPaymentHistory(periodStart, periodEnd);
+        }
+
         [HttpGet("session")]
         public IActionResult GetPaymentSession(Payment payment)
         {
@@ -36,7 +49,7 @@ namespace PaymentSystem.Controllers
         }
 
         [HttpPost("initiate")]
-        public IActionResult InitiatePayment(Card cardDetails, Guid sessionId, string callback)
+        public async Task<IActionResult> InitiatePayment(Card cardDetails, Guid sessionId, string callback)
         {
             if (!_repository.SessionIsActive(sessionId))
                 return Forbid("Session is not active or payment for this session was already made");
@@ -63,7 +76,11 @@ namespace PaymentSystem.Controllers
                     });
                 case CardValidationResults.Valid:
                 {
-                    TrySendNotification(sessionId, callback);
+                    if (
+                        !String.IsNullOrWhiteSpace(callback) &&
+                        Uri.IsWellFormedUriString(callback, UriKind.Absolute)
+                    )
+                        await _notifier.SendAsyncNotification(new Uri(callback), sessionId);
                     return
                         _repository.MakePayment(sessionId, cardDetails, callback) ? 
                         (IActionResult) Ok() : BadRequest(new Error(){
@@ -78,15 +95,6 @@ namespace PaymentSystem.Controllers
                         Message = "Uh-oh, something is wrong with your card :("
                     });
             }
-        }
-
-        private async void TrySendNotification(Guid sessionId, string callback)
-        {
-            if (
-                !String.IsNullOrWhiteSpace(callback) &&
-                Uri.IsWellFormedUriString(callback, UriKind.Absolute)
-            )
-                await _notifier.SendAsyncNotification(new Uri(callback), sessionId);
         }
     }
 }

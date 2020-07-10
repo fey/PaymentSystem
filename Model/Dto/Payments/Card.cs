@@ -1,4 +1,4 @@
-namespace PaymentSystem.Model
+namespace PaymentSystem.Model.Dto.Payments
 {
     public class Card
     {

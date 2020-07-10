@@ -1,17 +1,34 @@
 using System;
 using System.Collections.Concurrent;
-using PaymentSystem.Model;
+using System.Collections.Generic;
+using System.Linq;
+using PaymentSystem.Model.Common;
+using PaymentSystem.Model.Dto.Payments;
+using PaymentSystem.Model.Stored;
 using PaymentSystem.Services.Interfaces;
 
 namespace PaymentSystem.Services.Implementations
 {
     class StubPaymentRepository : IPaymentRepository
     {
-        private ConcurrentDictionary<Guid, SessionDetails> _payments;
+        private readonly ConcurrentDictionary<Guid, PaymentSessionDetails> _payments;
 
         public StubPaymentRepository()
         {
-            _payments = new ConcurrentDictionary<Guid, SessionDetails>();
+            _payments = new ConcurrentDictionary<Guid, PaymentSessionDetails>();
+        }
+
+        public List<PaymentRecord> GetPaymentHistory(DateTime start, DateTime end)
+        {
+            return _payments.Values.Where(sessionDetails => 
+                sessionDetails.PaymentDateTime.Date >= start.Date &&
+                sessionDetails.PaymentDateTime.Date <= end.Date
+            ).Select(sessionDetails => new PaymentRecord(){
+                PaymentSum = sessionDetails.AssociatedPayment.PaymentSum,
+                Purpose = sessionDetails.AssociatedPayment.Purpose,
+                CardNumber = sessionDetails.CardNumber,
+                PaymentDateTime = sessionDetails.PaymentDateTime
+            }).ToList();
         }
 
         public bool MakePayment(Guid sessionId, Card paymentCard, string source)
@@ -19,11 +36,12 @@ namespace PaymentSystem.Services.Implementations
             if (
                 !_payments.ContainsKey(sessionId) ||
                 _payments[sessionId].PaymentWasMade ||
-                DateTime.Today >= _payments[sessionId].ExpirationDateTime
+                DateTime.Now >= _payments[sessionId].ExpirationDateTime
             )
                 return false;
             _payments[sessionId].CardNumber = paymentCard.Number;
             _payments[sessionId].Callback = source;
+            _payments[sessionId].PaymentDateTime = DateTime.Now;
             return true;
         }
 
@@ -35,10 +53,10 @@ namespace PaymentSystem.Services.Implementations
             {
                 newSessionId = Guid.NewGuid();
                 paymentSuccessfullyRecorded = _payments.TryAdd(
-                    newSessionId, new SessionDetails()
+                    newSessionId, new PaymentSessionDetails()
                     {
                         AssociatedPayment = payment,
-                        ExpirationDateTime = DateTime.Today.AddMinutes(10)
+                        ExpirationDateTime = DateTime.Now.AddMinutes(10)
                     });
             }
             while (!paymentSuccessfullyRecorded);
