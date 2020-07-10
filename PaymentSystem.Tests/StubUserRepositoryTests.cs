@@ -1,26 +1,41 @@
+using AutoFixture;
+using AutoFixture.Kernel;
+using AutoFixture.Xunit2;
 using PaymentSystem.Model.Dto.Auth;
+using PaymentSystem.Services.Interfaces;
 using Xunit;
 
 namespace PaymentSystem.Services.Implementations.Tests
 {
     public class StubUserRepositoryTests
     {
-        [Fact]
-        public void ShouldAddUser()
+        class AutoDataWithHasherAttribute : AutoDataAttribute
         {
-            StubUserRepository repository = new StubUserRepository(new BCryptPasswordHasher());
+            public AutoDataWithHasherAttribute()
+                : base(() =>
+                {
+                    Fixture fixture = new Fixture();
+                    fixture.Customizations.Add(
+                        new TypeRelay(typeof(IPassowrdHasher), typeof(BCryptPasswordHasher))
+                    );
+                    return fixture;
+                })
+            {
+            }
+        }
+
+        [Theory, AutoDataWithHasher]
+        public void ShouldAddUser(StubUserRepository repository) =>
             Assert.True(repository.AddUser(new RegisterModel()
             {
                 Username = "логин",
                 Password = "пороль",
                 PasswordConfirmation = "пороль"
             }));
-        }
 
-        [Fact]
-        public void ShouldNotAddUserWithDuplicateLogin()
+        [Theory, AutoDataWithHasher]
+        public void ShouldNotAddUserWithDuplicateLogin(StubUserRepository repository)
         {
-            StubUserRepository repository = new StubUserRepository(new BCryptPasswordHasher());
             RegisterModel registrationInfo = new RegisterModel()
             {
                 Username = "логин",
@@ -31,22 +46,14 @@ namespace PaymentSystem.Services.Implementations.Tests
             Assert.False(repository.AddUser(registrationInfo));
         }
 
-        [Fact]
-        public void ShouldNotVerifyNotAddedUser()
-        {
-            StubUserRepository repository = new StubUserRepository(new BCryptPasswordHasher());
-            Assert.False(repository.VerifyCredentials(
-                new LoginModel(){
-                    Login = "логин",
-                    Password = "пороль",
-                }
-            ));
-        }
+        [Theory, AutoDataWithHasher]
+        public void ShouldNotVerifyNotAddedUser(
+            StubUserRepository repository, LoginModel credentials) =>
+            Assert.False(repository.VerifyCredentials(credentials));
 
-        [Fact]
-        public void ShouldVerifyAddedUser()
+        [Theory, AutoDataWithHasher]
+        public void ShouldVerifyAddedUser(StubUserRepository repository)
         {
-            StubUserRepository repository = new StubUserRepository(new BCryptPasswordHasher());
             repository.AddUser(new RegisterModel()
             {
                 Username = "логин",
