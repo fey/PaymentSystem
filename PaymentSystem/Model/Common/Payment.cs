@@ -6,7 +6,7 @@ namespace PaymentSystem.Model.Common
     {
         [DataType(DataType.Currency)]
         [Required(ErrorMessage = "Payment sum not defined")]
-        public decimal PaymentSum { get; set; }
+        public decimal Sum { get; set; }
         [Required(ErrorMessage = "Purpose not defined")]
         public string Purpose { get; set; }
     }

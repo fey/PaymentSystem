@@ -9,26 +9,27 @@ using PaymentSystem.Services.Interfaces;
 
 namespace PaymentSystem.Services.Implementations
 {
-    class StubPaymentRepository : IPaymentRepository
+    public class StubPaymentRepository : IPaymentRepository
     {
         private readonly ConcurrentDictionary<Guid, PaymentSessionDetails> _payments;
+        public TimeSpan SessionExpirationTimeSpan { get; set; }
 
         public StubPaymentRepository()
         {
             _payments = new ConcurrentDictionary<Guid, PaymentSessionDetails>();
+            SessionExpirationTimeSpan = TimeSpan.FromMinutes(10);
         }
 
         public List<PaymentRecord> GetPaymentHistory(DateTime start, DateTime end)
         {
             return _payments.Values.Where(sessionDetails =>
-                sessionDetails.PaymentDateTime.HasValue &&
-                sessionDetails.PaymentDateTime.Value.Date >= start.Date &&
-                sessionDetails.PaymentDateTime.Value.Date <= end.Date
+                sessionDetails.StartDateTime.Date >= start.Date &&
+                sessionDetails.StartDateTime.Date <= end.Date
             ).Select(sessionDetails => new PaymentRecord(){
-                PaymentSum = sessionDetails.AssociatedPayment.PaymentSum,
+                PaymentSum = sessionDetails.AssociatedPayment.Sum,
                 Purpose = sessionDetails.AssociatedPayment.Purpose,
                 CardNumber = sessionDetails.CardNumber,
-                PaymentDateTime = sessionDetails.PaymentDateTime
+                PaymentRequestDateTime = sessionDetails.StartDateTime
             }).ToList();
         }
 
@@ -42,7 +43,6 @@ namespace PaymentSystem.Services.Implementations
                 return false;
             _payments[sessionId].CardNumber = paymentCard.Number;
             _payments[sessionId].Callback = source;
-            _payments[sessionId].PaymentDateTime = DateTime.Now;
             return true;
         }
 
@@ -57,7 +57,8 @@ namespace PaymentSystem.Services.Implementations
                     newSessionId, new PaymentSessionDetails()
                     {
                         AssociatedPayment = payment,
-                        ExpirationDateTime = DateTime.Now.AddMinutes(10)
+                        StartDateTime = DateTime.Now,
+                        ExpirationDateTime = DateTime.Now.Add(SessionExpirationTimeSpan)
                     });
             }
             while (!paymentSuccessfullyRecorded);
@@ -67,6 +68,6 @@ namespace PaymentSystem.Services.Implementations
         public bool SessionIsActive(Guid sessionId) => 
             _payments.ContainsKey(sessionId) &&
             !_payments[sessionId].PaymentWasMade &&
-            DateTime.Today < _payments[sessionId].ExpirationDateTime;
+            DateTime.Now < _payments[sessionId].ExpirationDateTime;
     }
 }
