@@ -5,7 +5,7 @@ using PaymentSystem.Services.Interfaces;
 
 namespace PaymentSystem.Services.Implementations
 {
-    class PaymentValidator: IPaymentValidator
+    public class CardValidator: ICardValidator
     {
         private CardValidationResults SimplifiedLuhnAlgorithm(string cardNumber)
         {
@@ -14,9 +14,9 @@ namespace PaymentSystem.Services.Implementations
                 if (Char.IsDigit(cardNumber[i]))
                 {
                     int digit = (int)Char.GetNumericValue(cardNumber[i]),
-                        sumPart = digit % i == parity ? digit : digit * 2;
+                        sumPart = i % 2 == parity ? digit * 2 : digit;
                     if (sumPart > 9)
-                        sumPart /= 2;
+                        sumPart -= 9;
                     sum += sumPart;
                 }
                 else
@@ -30,13 +30,15 @@ namespace PaymentSystem.Services.Implementations
         {
             if (String.IsNullOrWhiteSpace(card.Number))
                 return CardValidationResults.InvalidNumber;
+            if (String.IsNullOrWhiteSpace(card.SecurityCode))
+                return CardValidationResults.InvalidSecurityCode;
             if (
-                card.RegistrationDate != null && 
-                card.RegistrationDate.ToDateTime() > DateTime.Today)
+                card.RegistrationDate.HasValue && 
+                card.RegistrationDate.Value.Date > DateTime.Today)
                 return CardValidationResults.Expired;
             if (
-                card.ExpirationDate != null &&
-                card.ExpirationDate.ToDateTime() < DateTime.Today)
+                card.ExpirationDate.HasValue &&
+                card.ExpirationDate.Value.Date < DateTime.Today)
                 return CardValidationResults.Expired;
             return SimplifiedLuhnAlgorithm(card.Number);
         }

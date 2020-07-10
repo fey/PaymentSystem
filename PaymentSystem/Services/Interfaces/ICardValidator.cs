@@ -3,7 +3,7 @@ using PaymentSystem.Model.Dto.Payments;
 
 namespace PaymentSystem.Services.Interfaces
 {
-    public interface IPaymentValidator
+    public interface ICardValidator
     {
         CardValidationResults ValidateCard(Card card);
     }

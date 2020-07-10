@@ -19,14 +19,14 @@ namespace PaymentSystem.Controllers
         private readonly ILogger<PaymentController> _logger;
         private readonly IPaymentRepository _repository;
         private readonly INotifier<Guid> _notifier;
-        private readonly IPaymentValidator _validator;
+        private readonly ICardValidator _validator;
 
 
         public PaymentController(
             ILogger<PaymentController> logger,
             IPaymentRepository repository,
             INotifier<Guid> notifier,
-            IPaymentValidator validator
+            ICardValidator validator
         )
         {
             _logger = logger;

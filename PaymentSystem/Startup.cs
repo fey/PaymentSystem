@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,11 +21,11 @@ namespace PaymentSystem
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<INotifier<string>, StubNotifier<string>>();
+            services.AddSingleton<INotifier<Guid>, StubNotifier<Guid>>();
             services.AddSingleton<IPaymentRepository, StubPaymentRepository>();
             services.AddSingleton<IPassowrdHasher, BCryptPasswordHasher>();
             services.AddSingleton<IUserRepository, StubUserRepository>();
-            services.AddSingleton<IPaymentValidator, PaymentValidator>();
+            services.AddSingleton<ICardValidator, CardValidator>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie();
