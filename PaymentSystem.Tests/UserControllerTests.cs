@@ -1,5 +1,4 @@
 using AutoFixture;
-using AutoFixture.AutoMoq;
 using AutoFixture.Kernel;
 using AutoFixture.Xunit2;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +29,7 @@ namespace PaymentSystem.Controllers.Tests
                             typeof(StubUserRepository)
                         )
                     );
-                    return fixture.Customize(new AutoMoqCustomization());
+                    return fixture;
                 })
             {
             }
@@ -38,38 +37,32 @@ namespace PaymentSystem.Controllers.Tests
 
         [Theory, AutoController]
         public void ShouldRegisterNewUser(
-            IUserRepository _repository,
+            [NoAutoProperties]UserController controller,
             RegisterModel regInfo
-        ) => Assert.IsType<OkResult>(
-            new UserController(_repository).Register(regInfo)
-        );
+        ) => Assert.IsType<OkResult>(controller.Register(regInfo));
 
         [Theory, AutoController]
         public void ShouldNotRegisterSameUser(
-            IUserRepository _repository,
+            [NoAutoProperties]UserController controller,
             RegisterModel regInfo
         )
         {
-            UserController controller = new UserController(_repository);
             controller.Register(regInfo);
             Assert.IsType<BadRequestObjectResult>(controller.Register(regInfo));
         }
 
         [Theory, AutoController]
         public void ShouldNotLoginInexistentUser(
-            IUserRepository _repository, 
+            [NoAutoProperties]UserController controller,
             LoginModel credentials
-        ) => Assert.IsType<BadRequestObjectResult>(
-            new UserController(_repository).Login(credentials)
-        );
+        ) => Assert.IsType<BadRequestObjectResult>(controller.Login(credentials));
 
         [Theory, AutoController]
         public void ShouldNotLoginUserByWrongPassword(
-            IUserRepository _repository, 
+            [NoAutoProperties]UserController controller,
             RegisterModel regInfo
         )
         {
-            UserController controller = new UserController(_repository);
             controller.Register(regInfo);
             Assert.IsType<BadRequestObjectResult>(
                 controller.Login(new LoginModel()
@@ -81,11 +74,10 @@ namespace PaymentSystem.Controllers.Tests
 
         [Theory, AutoController]
         public void ShouldLoginExistingUser(
-            IUserRepository _repository, 
+            [NoAutoProperties]UserController controller,
             RegisterModel regInfo
         )
         {
-            UserController controller = new UserController(_repository);
             controller.Register(regInfo);
             Assert.IsType<OkResult>(
                 controller.Login(new LoginModel()
