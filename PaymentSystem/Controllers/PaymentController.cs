@@ -16,13 +16,13 @@ namespace PaymentSystem.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentRepository _repository;
-        private readonly INotifier<Guid> _notifier;
+        private readonly INotifier _notifier;
         private readonly ICardValidator _validator;
 
 
         public PaymentController(
             IPaymentRepository repository,
-            INotifier<Guid> notifier,
+            INotifier notifier,
             ICardValidator validator
         )
         {
@@ -39,9 +39,9 @@ namespace PaymentSystem.Controllers
         }
 
         [HttpGet("session")]
-        public IActionResult GetPaymentSession(Payment payment)
+        public ActionResult<Guid> GetPaymentSession(Payment payment)
         {
-            return Ok(_repository.RecordPayment(payment));
+            return _repository.RecordPayment(payment);
         }
 
         [HttpPost("initiate")]
@@ -76,7 +76,7 @@ namespace PaymentSystem.Controllers
                         !String.IsNullOrWhiteSpace(callback) &&
                         Uri.IsWellFormedUriString(callback, UriKind.Absolute)
                     )
-                        await _notifier.SendAsyncNotification(new Uri(callback), sessionId);
+                        await _notifier.SendAsyncNotification(new Uri(callback), sessionId.ToString());
                     return
                         _repository.MakePayment(sessionId, cardDetails, callback) ? 
                         (IActionResult) Ok() : BadRequest(new Error(){

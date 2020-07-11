@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace PaymentSystem.Services.Interfaces
 {
-    public interface INotifier<T>
+    public interface INotifier
     {
-        Task SendAsyncNotification(Uri target, T message);
+        Task SendAsyncNotification(Uri target, String message);
     }
 }

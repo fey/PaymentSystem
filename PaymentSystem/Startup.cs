@@ -21,7 +21,7 @@ namespace PaymentSystem
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<INotifier<Guid>, StubNotifier<Guid>>();
+            services.AddSingleton<INotifier, StubNotifier>();
             services.AddSingleton<IPaymentRepository, StubPaymentRepository>();
             services.AddSingleton<IPassowrdHasher, BCryptPasswordHasher>();
             services.AddSingleton<IUserRepository, StubUserRepository>();

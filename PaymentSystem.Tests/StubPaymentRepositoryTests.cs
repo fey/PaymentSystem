@@ -13,7 +13,7 @@ namespace PaymentSystem.Services.Implementations.Tests
         [Theory, AutoData]
         public void ShouldRecordPayment(
             [NoAutoProperties]StubPaymentRepository repository, Payment payment
-        ) => Assert.NotNull(repository.RecordPayment(payment));
+        ) => Assert.IsType<Guid>(repository.RecordPayment(payment));
 
         [Theory, AutoData]
         public void ShouldRememberSession(
@@ -114,7 +114,7 @@ namespace PaymentSystem.Services.Implementations.Tests
             payments = repository.GetPaymentHistory(
                 DateTime.Today.AddDays(2), DateTime.Today.AddDays(3)
             );
-            Assert.Collection(payments);
+            Assert.Empty(payments);
         }
     }
 }

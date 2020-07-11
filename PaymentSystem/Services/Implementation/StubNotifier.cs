@@ -5,16 +5,16 @@ using PaymentSystem.Services.Interfaces;
 
 namespace PaymentSystem.Services.Implementations
 {
-    class StubNotifier<T>: INotifier<T>
+    public class StubNotifier: INotifier
     {
-        private void DoSendNotification(Uri target, T message)
+        private void DoSendNotification(Uri target, String message)
         {
             Console.WriteLine($"Sending notification to {target}...");
             Thread.Sleep(10000);
             Console.WriteLine($"Notification to {target} was successfully sent.");
         }
 
-        public Task SendAsyncNotification(Uri target, T message)
+        public Task SendAsyncNotification(Uri target, String message)
         {
             if (
                 target.Scheme != Uri.UriSchemeHttp &&
