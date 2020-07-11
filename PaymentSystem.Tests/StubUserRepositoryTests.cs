@@ -16,7 +16,10 @@ namespace PaymentSystem.Services.Implementations.Tests
                 {
                     Fixture fixture = new Fixture();
                     fixture.Customizations.Add(
-                        new TypeRelay(typeof(IPassowrdHasher), typeof(BCryptPasswordHasher))
+                        new TypeRelay(
+                            typeof(IPassowrdHasher),
+                            typeof(BCryptPasswordHasher)
+                        )
                     );
                     return fixture;
                 })

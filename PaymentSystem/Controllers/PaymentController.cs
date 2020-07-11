@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using PaymentSystem.Model;
 using PaymentSystem.Model.Common;
 using PaymentSystem.Model.Dto;
@@ -16,20 +15,17 @@ namespace PaymentSystem.Controllers
     [Route("api/[controller]")]
     public class PaymentController : ControllerBase
     {
-        private readonly ILogger<PaymentController> _logger;
         private readonly IPaymentRepository _repository;
         private readonly INotifier<Guid> _notifier;
         private readonly ICardValidator _validator;
 
 
         public PaymentController(
-            ILogger<PaymentController> logger,
             IPaymentRepository repository,
             INotifier<Guid> notifier,
             ICardValidator validator
         )
         {
-            _logger = logger;
             _repository = repository;
             _notifier = notifier;
             _validator = validator;

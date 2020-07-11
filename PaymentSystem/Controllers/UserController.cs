@@ -1,9 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using PaymentSystem.Model.Dto;
 using PaymentSystem.Model.Dto.Auth;
 using PaymentSystem.Services.Interfaces;
@@ -14,7 +14,6 @@ namespace PaymentSystem.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
         private readonly IUserRepository _repository;
 
         private async void Authenticate(string userName)
@@ -23,18 +22,26 @@ namespace PaymentSystem.Controllers
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, userName)
             };
-            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+            ClaimsIdentity id = new ClaimsIdentity(
+                claims, "ApplicationCookie",
+                ClaimsIdentity.DefaultNameClaimType,
+                ClaimsIdentity.DefaultRoleClaimType
+            );
+            try
+            {
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(id)
+                );
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
-        public UserController(
-            ILogger<UserController> logger,
-            IUserRepository repository
-        )
-        {
-            _logger = logger;
+        public UserController(IUserRepository repository) =>
             _repository = repository;
-        }
 
         [HttpPost("login")]
         [ValidateAntiForgeryToken]
@@ -58,7 +65,14 @@ namespace PaymentSystem.Controllers
         [HttpGet("logout")]
         public async void Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            try
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         [HttpPost("register")]

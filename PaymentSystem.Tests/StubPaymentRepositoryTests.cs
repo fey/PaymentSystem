@@ -96,8 +96,8 @@ namespace PaymentSystem.Services.Implementations.Tests
                 DateTime.Today, DateTime.Today
             );
             Assert.Collection(payments, item => {
-                Assert.Equal(item.PaymentSum, payment.Sum);
-                Assert.Equal(item.Purpose, payment.Purpose);
+                Assert.Equal(payment.Sum, item.PaymentSum);
+                Assert.Equal( payment.Purpose, item.Purpose);
             });
         }
 
