@@ -10,6 +10,7 @@ namespace PaymentSystem.Model.Dto.Auth
         [DataType(DataType.Password)]
         public string Password { get; set; }
         [DataType(DataType.Password)]
+        [Required(ErrorMessage = "Password confirmation not defined")]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         public string PasswordConfirmation { get; set; }
     }
