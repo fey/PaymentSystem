@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -180,6 +181,24 @@ namespace PaymentSystem.Tests
             response = await client.PostAsJsonAsync(userLoginRoute, credentials);
             Assert.True(response.IsSuccessStatusCode);
             Assert.True(response.Headers.Contains("Set-Cookie"));
+        }
+
+        [Theory, AutoData]
+        public async void ShouldProperlyLogout(LoginModel credentials)
+        {
+            HttpClient client = _factory.CreateClient();
+            RegisterModel regInfo = new RegisterModel()
+            {
+                Username = credentials.Login,
+                Password = credentials.Password,
+                PasswordConfirmation = credentials.Password
+            };
+            HttpResponseMessage response = await client.PostAsJsonAsync(userRegistrationRoute, regInfo);
+            response = await client.PostAsJsonAsync(userLoginRoute, credentials);
+            response = await client.GetAsync(userLogoutRoute);
+            Assert.True(!response.Headers.Contains("Set-Cookie") ||
+                response.Headers.GetValues("Set-Cookie")
+                    .Any(header => header.Contains(".AspNetCore.Cookies=;")));
         }
 
         [Theory, AutoData]
