@@ -4,6 +4,10 @@
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/pamugk/PaymentSystem/.NET%20Core?logo=.Net)
 
+## О публикации
+
+Контейнеры, формируемые для сервера, хранятся в [этом](https://hub.docker.com/repository/docker/pamugk/paymentsystem "Ссылка на репозиторий DockerHub") репозитории.  
+
 ## О сервере
 
 Данный сервер предоставляет API, имитирующее платёжную систему (создано исключительно в учебных целях и не предназначено для использования в реальных коммерческих системах).  
