@@ -34,16 +34,16 @@ namespace PaymentSystem.Controllers
         [HttpGet("history")]
         [Authorize]
         public ActionResult<List<PaymentRecord>> GetPaymentHistory(
-            DateTime periodStart, DateTime periodEnd
+            [FromQuery]DateTime periodStart, [FromQuery]DateTime periodEnd
         ) => _repository.GetPaymentHistory(periodStart, periodEnd);
 
         [HttpGet("session")]
-        public IActionResult GetPaymentSession(Payment payment) =>
+        public IActionResult GetPaymentSession([FromBody]Payment payment) =>
             payment.Sum > 0 ? (IActionResult)Ok(_repository.RecordPayment(payment)) : BadRequest();
         
         [HttpPost("initiate")]
         public async Task<IActionResult> InitiatePayment(
-            Card cardDetails, Guid sessionId, string callback
+            [FromBody]Card cardDetails, [FromQuery]Guid sessionId, [FromQuery]string callback
         )
         {
             if (!_repository.SessionIsActive(sessionId))

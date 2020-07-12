@@ -25,6 +25,8 @@ namespace PaymentSystem.Tests
         private static string userLoginRoute = "/api/user/login";
         private static string userLogoutRoute = "/api/user/logout";
 
+        private static string openApiSpecRoute = "/swagger/v1/swagger.json";
+
         public IntegrationTests() =>
             _factory = new WebApplicationFactory<Startup>();
 
@@ -283,6 +285,14 @@ namespace PaymentSystem.Tests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             List<PaymentRecord> payments = await response.Content.ReadFromJsonAsync<List<PaymentRecord>>();
             Assert.Empty(payments);
+        }
+
+        [Fact]
+        public async void ShouldGiveOpenApiSpec()
+        {
+            HttpClient client = _factory.CreateClient();
+            HttpResponseMessage response = await client.GetAsync(openApiSpecRoute);
+            Assert.True(response.IsSuccessStatusCode);
         }
     }
 }

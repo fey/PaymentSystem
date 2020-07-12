@@ -44,7 +44,7 @@ namespace PaymentSystem.Controllers
             _repository = repository;
 
         [HttpPost("login")]
-        public IActionResult Login(LoginModel credentials)
+        public IActionResult Login([FromBody]LoginModel credentials)
         {
             IActionResult response = null;
             if (_repository.VerifyCredentials(credentials))
@@ -75,7 +75,7 @@ namespace PaymentSystem.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register(RegisterModel newUser) =>
+        public IActionResult Register([FromBody]RegisterModel newUser) =>
             _repository.AddUser(newUser) ? (IActionResult)Ok() : 
             BadRequest(new Error() 
                     { 
