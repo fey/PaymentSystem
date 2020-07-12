@@ -13,7 +13,7 @@ namespace PaymentSystem.Controllers.Tests
 {
     public class PaymentControllerTests
     {
-        class AutoControllerAttribute: AutoDataAttribute
+        private class AutoControllerAttribute: AutoDataAttribute
         {
             public AutoControllerAttribute()
                 : base(() =>
@@ -43,15 +43,19 @@ namespace PaymentSystem.Controllers.Tests
         public void ShouldGivePaymentSessionId(
             [NoAutoProperties]PaymentController controller,
             Payment payment
-        ) => Assert.IsType<ActionResult<Guid>>(
-            controller.GetPaymentSession(payment)
-        );
+        ) 
+        {
+            OkObjectResult result = Assert.IsType<OkObjectResult>(
+                controller.GetPaymentSession(payment)
+            );
+            Assert.IsType<Guid>(result.Value);
+        } 
 
         [Theory, AutoController]
         public async void ShouldNotMakePaymentForInvalidSessionId(
             [NoAutoProperties]PaymentController controller,
             Card card
-        ) => Assert.IsType<ForbidResult>(
+        ) => Assert.IsType<NotFoundObjectResult>(
             await controller.InitiatePayment(card, Guid.Empty, null)
         );
 
@@ -66,9 +70,9 @@ namespace PaymentSystem.Controllers.Tests
                 Number = "4a561261212345464",
                 SecurityCode = "404"
             };
-            ActionResult<Guid> result = controller.GetPaymentSession(payment);
+            OkObjectResult result = (OkObjectResult)controller.GetPaymentSession(payment);
             Assert.IsType<BadRequestObjectResult>(
-                await controller.InitiatePayment(invalidCard, result.Value, null)
+                await controller.InitiatePayment(invalidCard, (Guid)result.Value, null)
             );
         }
 
@@ -82,9 +86,9 @@ namespace PaymentSystem.Controllers.Tests
                 Number = "4561261212345467",
                 SecurityCode = "404"
             };
-            ActionResult<Guid> result = controller.GetPaymentSession(payment);
+            OkObjectResult result = (OkObjectResult)controller.GetPaymentSession(payment);
             Assert.IsType<OkResult>(
-                await controller.InitiatePayment(validCard, result.Value, null)
+                await controller.InitiatePayment(validCard, (Guid)result.Value, null)
             );
         }
     }

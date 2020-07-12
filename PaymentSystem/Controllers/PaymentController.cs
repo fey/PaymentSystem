@@ -33,22 +33,26 @@ namespace PaymentSystem.Controllers
 
         [HttpGet("history")]
         [Authorize]
-        public ActionResult<List<PaymentRecord>> GetPaymentHistory(DateTime periodStart, DateTime periodEnd)
-        {
-            return _repository.GetPaymentHistory(periodStart, periodEnd);
-        }
+        public ActionResult<List<PaymentRecord>> GetPaymentHistory(
+            DateTime periodStart, DateTime periodEnd
+        ) => _repository.GetPaymentHistory(periodStart, periodEnd);
 
         [HttpGet("session")]
-        public ActionResult<Guid> GetPaymentSession(Payment payment)
-        {
-            return _repository.RecordPayment(payment);
-        }
-
+        public IActionResult GetPaymentSession(Payment payment) =>
+            payment.Sum > 0 ? (IActionResult)Ok(_repository.RecordPayment(payment)) : BadRequest();
+        
         [HttpPost("initiate")]
-        public async Task<IActionResult> InitiatePayment(Card cardDetails, Guid sessionId, string callback)
+        public async Task<IActionResult> InitiatePayment(
+            Card cardDetails, Guid sessionId, string callback
+        )
         {
             if (!_repository.SessionIsActive(sessionId))
-                return Forbid("Session is not active or payment for this session was already made");
+                return NotFound(
+                    new Error() 
+                    { 
+                        Code = 404,
+                        Message = "Session is not active or payment for this session was already made"
+                    });
             CardValidationResults validationResult = _validator.ValidateCard(cardDetails);
             switch (validationResult)
             {

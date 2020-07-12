@@ -44,7 +44,6 @@ namespace PaymentSystem.Controllers
             _repository = repository;
 
         [HttpPost("login")]
-        [ValidateAntiForgeryToken]
         public IActionResult Login(LoginModel credentials)
         {
             IActionResult response = null;
@@ -76,7 +75,6 @@ namespace PaymentSystem.Controllers
         }
 
         [HttpPost("register")]
-        [ValidateAntiForgeryToken]
         public IActionResult Register(RegisterModel newUser) =>
             _repository.AddUser(newUser) ? (IActionResult)Ok() : 
             BadRequest(new Error() 

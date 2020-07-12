@@ -9,7 +9,7 @@ namespace PaymentSystem.Services.Implementations.Tests
 {
     public class StubUserRepositoryTests
     {
-        class AutoDataWithHasherAttribute : AutoDataAttribute
+        private class AutoDataWithHasherAttribute : AutoDataAttribute
         {
             public AutoDataWithHasherAttribute()
                 : base(() =>

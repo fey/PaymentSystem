@@ -11,7 +11,7 @@ namespace PaymentSystem.Controllers.Tests
 {
     public class UserControllerTests
     {
-        class AutoControllerAttribute: AutoDataAttribute
+        private class AutoControllerAttribute: AutoDataAttribute
         {
             public AutoControllerAttribute()
                 : base(() =>
