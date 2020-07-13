@@ -3,6 +3,7 @@
 ## Текущее состояние релиза
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/pamugk/PaymentSystem/.NET%20Core?logo=.Net)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/pamugk/PaymentSystem/Docker?label=docker%20build&logo=Docker)
 
 ## О публикации
 
