@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using AutoFixture.Xunit2;
 using Microsoft.AspNetCore.Mvc.Testing;
-using PaymentSystem.Model.Common;
 using PaymentSystem.Model.Dto.Auth;
 using PaymentSystem.Model.Dto.Payments;
 using Xunit;
@@ -39,7 +38,7 @@ namespace PaymentSystem.Tests
         }
 
         [Theory, AutoData]
-        public async void ShouldGiveSessionIdForPayment(Payment payment)
+        public async void ShouldGiveSessionIdForPayment(PaymentRequest payment)
         {
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, paymentSessionRoute)
@@ -57,7 +56,7 @@ namespace PaymentSystem.Tests
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, paymentSessionRoute)
             {
-                Content = JsonContent.Create(new Payment(){ Sum = -10, Purpose = "Just for lulz" })
+                Content = JsonContent.Create(new PaymentRequest(){ Sum = -10, Purpose = "Just for lulz" })
             };
             HttpResponseMessage response = await client.SendAsync(request);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -74,7 +73,7 @@ namespace PaymentSystem.Tests
         }
 
         [Theory, AutoData]
-        public async void ShouldNotMakePaymentForInvalidCard(Payment payment)
+        public async void ShouldNotMakePaymentForInvalidCard(PaymentRequest payment)
         {
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, paymentSessionRoute)
@@ -96,7 +95,7 @@ namespace PaymentSystem.Tests
         }
 
         [Theory, AutoData]
-        public async void ShouldMakePaymentForValidCard(Payment payment)
+        public async void ShouldMakePaymentForValidCard(PaymentRequest payment)
         {
             HttpClient client = _factory.CreateClient();
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, paymentSessionRoute)
@@ -232,7 +231,7 @@ namespace PaymentSystem.Tests
 
         [Theory, AutoData]
         public async void ShouldGivePaymentHistoryToAuthenticatedUser(
-            LoginModel credentials, Payment payment
+            LoginModel credentials, PaymentRequest payment
         )
         {
             HttpClient client = _factory.CreateClient();
@@ -262,7 +261,7 @@ namespace PaymentSystem.Tests
 
         [Theory, AutoData]
         public async void ShouldNotGivePaymentHistoryOutOfPeriod(
-            LoginModel credentials, Payment payment
+            LoginModel credentials, PaymentRequest payment
         )
         {
             HttpClient client = _factory.CreateClient();

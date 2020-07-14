@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PaymentSystem.Model.Common
+namespace PaymentSystem.Model.Dto.Payments
 {
-    public class Payment
+    public class PaymentRequest
     {
         [DataType(DataType.Currency)]
         [Required(ErrorMessage = "Payment sum not defined")]

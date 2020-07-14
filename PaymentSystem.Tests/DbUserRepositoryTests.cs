@@ -1,17 +1,20 @@
+using System;
 using AutoFixture;
 using AutoFixture.Kernel;
 using AutoFixture.Xunit2;
+using Microsoft.EntityFrameworkCore;
+using PaymentSystem.Database;
 using PaymentSystem.Model.Dto.Auth;
 using PaymentSystem.Services.Interfaces;
 using Xunit;
 
 namespace PaymentSystem.Services.Implementations.Tests
 {
-    public class StubUserRepositoryTests
+    public class DbUserRepositoryTests
     {
-        private class AutoDataWithHasherAttribute : AutoDataAttribute
+        private class AutoServicesAttribute : AutoDataAttribute
         {
-            public AutoDataWithHasherAttribute()
+            public AutoServicesAttribute()
                 : base(() =>
                 {
                     Fixture fixture = new Fixture();
@@ -21,14 +24,20 @@ namespace PaymentSystem.Services.Implementations.Tests
                             typeof(BCryptPasswordHasher)
                         )
                     );
+                    fixture.Register<UserContext>(() => {
+                        var options = new DbContextOptionsBuilder<UserContext>()
+                            .UseInMemoryDatabase(databaseName: $"Users{Guid.NewGuid()}")
+                            .Options;
+                        return new UserContext(options);
+                    });
                     return fixture;
                 })
             {
             }
         }
 
-        [Theory, AutoDataWithHasher]
-        public void ShouldAddUser(StubUserRepository repository) =>
+        [Theory, AutoServices]
+        public void ShouldAddUser(DbUserRepository repository) =>
             Assert.True(repository.AddUser(new RegisterModel()
             {
                 Username = "логин",
@@ -36,8 +45,8 @@ namespace PaymentSystem.Services.Implementations.Tests
                 PasswordConfirmation = "пороль"
             }));
 
-        [Theory, AutoDataWithHasher]
-        public void ShouldNotAddUserWithDuplicateLogin(StubUserRepository repository)
+        [Theory, AutoServices]
+        public void ShouldNotAddUserWithDuplicateLogin(DbUserRepository repository)
         {
             RegisterModel registrationInfo = new RegisterModel()
             {
@@ -49,13 +58,13 @@ namespace PaymentSystem.Services.Implementations.Tests
             Assert.False(repository.AddUser(registrationInfo));
         }
 
-        [Theory, AutoDataWithHasher]
+        [Theory, AutoServices]
         public void ShouldNotVerifyNotAddedUser(
-            StubUserRepository repository, LoginModel credentials) =>
+            DbUserRepository repository, LoginModel credentials) =>
             Assert.False(repository.VerifyCredentials(credentials));
 
-        [Theory, AutoDataWithHasher]
-        public void ShouldVerifyAddedUser(StubUserRepository repository)
+        [Theory, AutoServices]
+        public void ShouldVerifyAddedUser(DbUserRepository repository)
         {
             repository.AddUser(new RegisterModel()
             {

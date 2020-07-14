@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -44,10 +45,10 @@ namespace PaymentSystem.Controllers
             _repository = repository;
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody]LoginModel credentials)
+        public async Task<IActionResult> Login([FromBody]LoginModel credentials)
         {
             IActionResult response = null;
-            if (_repository.VerifyCredentials(credentials))
+            if (await _repository.VerifyCredentialsAsync(credentials))
             {
                 Authenticate(credentials.Login);
                 response = Ok();
@@ -75,8 +76,8 @@ namespace PaymentSystem.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody]RegisterModel newUser) =>
-            _repository.AddUser(newUser) ? (IActionResult)Ok() : 
+        public async Task<IActionResult> Register([FromBody]RegisterModel newUser) =>
+            await _repository.AddUserAsync(newUser) ? (IActionResult)Ok() : 
             BadRequest(new Error() 
                     { 
                         Code = 1001,

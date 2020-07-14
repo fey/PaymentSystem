@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentSystem.Model;
-using PaymentSystem.Model.Common;
 using PaymentSystem.Model.Dto;
 using PaymentSystem.Model.Dto.Payments;
 using PaymentSystem.Services.Interfaces;
@@ -33,20 +32,20 @@ namespace PaymentSystem.Controllers
 
         [HttpGet("history")]
         [Authorize]
-        public ActionResult<List<PaymentRecord>> GetPaymentHistory(
+        public IAsyncEnumerable<PaymentRecord> GetPaymentHistory(
             [FromQuery]DateTime periodStart, [FromQuery]DateTime periodEnd
-        ) => _repository.GetPaymentHistory(periodStart, periodEnd);
+        ) => _repository.GetPaymentHistoryAsync(periodStart, periodEnd);
 
         [HttpGet("session")]
-        public IActionResult GetPaymentSession([FromBody]Payment payment) =>
-            payment.Sum > 0 ? (IActionResult)Ok(_repository.RecordPayment(payment)) : BadRequest();
+        public async Task<IActionResult> GetPaymentSession([FromBody]PaymentRequest payment) =>
+            payment.Sum > 0 ? (IActionResult)Ok(await _repository.RecordPaymentAsync(payment)) : BadRequest();
         
         [HttpPost("initiate")]
         public async Task<IActionResult> InitiatePayment(
             [FromBody]Card cardDetails, [FromQuery]Guid sessionId, [FromQuery]string callback
         )
         {
-            if (!_repository.SessionIsActive(sessionId))
+            if (!(await _repository.SessionIsActiveAsync(sessionId)))
                 return NotFound(
                     new Error() 
                     { 
@@ -82,7 +81,7 @@ namespace PaymentSystem.Controllers
                     )
                         await _notifier.SendAsyncNotification(new Uri(callback), sessionId.ToString());
                     return
-                        _repository.MakePayment(sessionId, cardDetails, callback) ? 
+                        await _repository.MakePaymentAsync(sessionId, cardDetails) ? 
                         (IActionResult) Ok() : BadRequest(new Error(){
                             Code = 800,
                             Message = "Something went wrong while making payment"

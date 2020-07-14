@@ -3,7 +3,8 @@ using AutoFixture;
 using AutoFixture.Kernel;
 using AutoFixture.Xunit2;
 using Microsoft.AspNetCore.Mvc;
-using PaymentSystem.Model.Common;
+using Microsoft.EntityFrameworkCore;
+using PaymentSystem.Database;
 using PaymentSystem.Model.Dto.Payments;
 using PaymentSystem.Services.Implementations;
 using PaymentSystem.Services.Interfaces;
@@ -20,7 +21,15 @@ namespace PaymentSystem.Controllers.Tests
                 {
                     Fixture fixture = new Fixture();
                     fixture.Register<IPaymentRepository>(
-                        () => new StubPaymentRepository());
+                        () => 
+                        {
+                            var options = new DbContextOptionsBuilder<PaymentContext>()
+                                .UseLazyLoadingProxies()
+                                .UseInMemoryDatabase(databaseName: $"2Payments{Guid.NewGuid()}")
+                                .Options;
+                            return new DbPaymentRepository(new PaymentContext(options));
+                        }
+                    );
                     fixture.Customizations.Add(
                         new TypeRelay(
                             typeof(INotifier), 
@@ -42,7 +51,7 @@ namespace PaymentSystem.Controllers.Tests
         [Theory, AutoController]
         public void ShouldGivePaymentSessionId(
             [NoAutoProperties]PaymentController controller,
-            Payment payment
+            PaymentRequest payment
         ) 
         {
             OkObjectResult result = Assert.IsType<OkObjectResult>(
@@ -62,7 +71,7 @@ namespace PaymentSystem.Controllers.Tests
         [Theory, AutoController]
         public async void ShouldNotMakePaymentForInvalidCard(
             [NoAutoProperties]PaymentController controller,
-            Payment payment
+            PaymentRequest payment
         )
         {
             Card invalidCard = new Card()
@@ -70,7 +79,7 @@ namespace PaymentSystem.Controllers.Tests
                 Number = "4a561261212345464",
                 SecurityCode = "404"
             };
-            OkObjectResult result = (OkObjectResult)controller.GetPaymentSession(payment);
+            OkObjectResult result = (OkObjectResult)await controller.GetPaymentSession(payment);
             Assert.IsType<BadRequestObjectResult>(
                 await controller.InitiatePayment(invalidCard, (Guid)result.Value, null)
             );
@@ -79,14 +88,14 @@ namespace PaymentSystem.Controllers.Tests
         [Theory, AutoController]
         public async void ShouldMakePaymentForValidCard(
             [NoAutoProperties]PaymentController controller,
-            Payment payment
+            PaymentRequest payment
         )
         {
             Card validCard = new Card() {
                 Number = "4561261212345467",
                 SecurityCode = "404"
             };
-            OkObjectResult result = (OkObjectResult)controller.GetPaymentSession(payment);
+            OkObjectResult result = (OkObjectResult)await controller.GetPaymentSession(payment);
             Assert.IsType<OkResult>(
                 await controller.InitiatePayment(validCard, (Guid)result.Value, null)
             );

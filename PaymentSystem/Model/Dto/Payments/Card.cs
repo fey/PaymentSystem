@@ -7,8 +7,8 @@ namespace PaymentSystem.Model.Dto.Payments
     {
         [DataType(DataType.CreditCard)]
         [Required]
-        public string Number { get; set; }
-        public string SecurityCode { get; set; }
+        public String Number { get; set; }
+        public String SecurityCode { get; set; }
         [DataType(DataType.Date)]
         public DateTime? RegistrationDate { get; set; }
         [DataType(DataType.Date)]

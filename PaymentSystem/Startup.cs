@@ -1,12 +1,12 @@
-using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using PaymentSystem.Database;
 using PaymentSystem.Services.Implementations;
 using PaymentSystem.Services.Interfaces;
 
@@ -23,14 +23,25 @@ namespace PaymentSystem
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<INotifier, StubNotifier>();
-            services.AddSingleton<IPaymentRepository, StubPaymentRepository>();
-            services.AddSingleton<IPassowrdHasher, BCryptPasswordHasher>();
-            services.AddSingleton<IUserRepository, StubUserRepository>();
-            services.AddSingleton<ICardValidator, CardValidator>();
+            services.AddTransient<INotifier, StubNotifier>();
+            services.AddScoped<IPaymentRepository, DbPaymentRepository>();
+            services.AddTransient<IPassowrdHasher, BCryptPasswordHasher>();
+            services.AddScoped<IUserRepository, DbUserRepository>();
+            services.AddTransient<ICardValidator, CardValidator>();
 
             services.AddMvcCore()
                 .AddApiExplorer();
+
+            services.AddDbContext<PaymentContext>(
+                builder => builder
+                            .UseLazyLoadingProxies()
+                            .UseInMemoryDatabase("Payments")
+            );
+
+            services.AddDbContext<UserContext>(
+                builder => builder
+                            .UseInMemoryDatabase("Users")
+            );
             
             services.AddSwaggerGen(c =>
             {
