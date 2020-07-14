@@ -3,8 +3,9 @@
 ## Текущее состояние релиза
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/pamugk/PaymentSystem/.NET%20Core?logo=.Net)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/pamugk/PaymentSystem/Docker?label=docker%20build&logo=Docker)
 
-## О публикации
+## О размещении в Интернете
 
 Контейнеры, формируемые для сервера, хранятся в [этом](https://hub.docker.com/repository/docker/pamugk/paymentsystem "Ссылка на репозиторий DockerHub") репозитории.  
 
