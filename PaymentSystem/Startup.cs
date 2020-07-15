@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,16 +32,16 @@ namespace PaymentSystem
 
             services.AddMvcCore()
                 .AddApiExplorer();
-
+            Guid startupId = Guid.NewGuid();
             services.AddDbContext<PaymentContext>(
                 builder => builder
                             .UseLazyLoadingProxies()
-                            .UseInMemoryDatabase("Payments")
+                            .UseInMemoryDatabase($"Payments{startupId}")
             );
 
             services.AddDbContext<UserContext>(
                 builder => builder
-                            .UseInMemoryDatabase("Users")
+                            .UseInMemoryDatabase($"Users{startupId}")
             );
             
             services.AddSwaggerGen(c =>

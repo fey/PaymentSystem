@@ -12,7 +12,6 @@ using Xunit;
 
 namespace PaymentSystem.Tests
 {
-    [Collection("Serialize")]
     public class IntegrationTests
     {
         private readonly WebApplicationFactory<Startup> _factory;
