@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using AutoFixture.Xunit2;
-using Microsoft.AspNetCore.Mvc.Testing;
 using PaymentSystem.Model.Dto.Auth;
 using PaymentSystem.Model.Dto.Payments;
 using Xunit;
@@ -14,7 +13,7 @@ namespace PaymentSystem.Tests
 {
     public class IntegrationTests
     {
-        private readonly WebApplicationFactory<Startup> _factory;
+        private readonly TestWebAppFactory<Startup> _factory;
 
         private static string paymentSessionRoute = "/api/payment/session";
         private static string paymentInitiationRoute = "/api/payment/initiate";
@@ -27,7 +26,7 @@ namespace PaymentSystem.Tests
         private static string openApiSpecRoute = "/swagger/v1/swagger.json";
 
         public IntegrationTests() =>
-            _factory = new WebApplicationFactory<Startup>();
+            _factory = new TestWebAppFactory<Startup>();
 
         [Fact]
         public async void ShouldNotGiveSessionIdWithoutPayment()

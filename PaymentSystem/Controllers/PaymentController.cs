@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PaymentSystem.Model;
 using PaymentSystem.Model.Dto;
@@ -32,27 +32,57 @@ namespace PaymentSystem.Controllers
 
         [HttpGet("history")]
         [Authorize]
-        public IAsyncEnumerable<PaymentRecord> GetPaymentHistory(
+        public IActionResult GetPaymentHistory(
             [FromQuery]DateTime periodStart, [FromQuery]DateTime periodEnd
-        ) => _repository.GetPaymentHistoryAsync(periodStart, periodEnd);
+        ) 
+        {
+            try
+            {
+                return Ok(_repository.GetPaymentHistoryAsync(periodStart, periodEnd));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
 
         [HttpGet("session")]
-        public async Task<IActionResult> GetPaymentSession([FromBody]PaymentRequest payment) =>
-            payment.Sum > 0 ? (IActionResult)Ok(await _repository.RecordPaymentAsync(payment)) : BadRequest();
+        public async Task<IActionResult> GetPaymentSession([FromBody]PaymentRequest payment)
+        {
+            if (payment.Sum > 0)
+                try
+                {
+                    return Ok(await _repository.RecordPaymentAsync(payment));
+                }
+                catch
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+                }
+            else
+                return BadRequest();
+        }
         
         [HttpPost("initiate")]
         public async Task<IActionResult> InitiatePayment(
             [FromBody]Card cardDetails, [FromQuery]Guid sessionId, [FromQuery]string callback
         )
         {
-            if (!(await _repository.SessionIsActiveAsync(sessionId)))
-                return NotFound(
-                    new Error() 
-                    { 
-                        Code = 404,
-                        Message = "Session is not active or payment for this session was already made"
-                    });
-            CardValidationResults validationResult = _validator.ValidateCard(cardDetails);
+            CardValidationResults validationResult;
+            try
+            {
+                if (!(await _repository.SessionIsActiveAsync(sessionId)))
+                    return NotFound(
+                        new Error() 
+                        { 
+                            Code = 404,
+                            Message = "Session is not active or payment for this session was already made"
+                        });
+                validationResult = _validator.ValidateCard(cardDetails);
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
             switch (validationResult)
             {
                 case CardValidationResults.Expired:
@@ -75,17 +105,24 @@ namespace PaymentSystem.Controllers
                     });
                 case CardValidationResults.Valid:
                 {
-                    if (
-                        !String.IsNullOrWhiteSpace(callback) &&
-                        Uri.IsWellFormedUriString(callback, UriKind.Absolute)
-                    )
-                        await _notifier.SendAsyncNotification(new Uri(callback), sessionId.ToString());
-                    return
-                        await _repository.MakePaymentAsync(sessionId, cardDetails) ? 
-                        (IActionResult) Ok() : BadRequest(new Error(){
-                            Code = 800,
-                            Message = "Something went wrong while making payment"
-                        });
+                    try
+                    {
+                        if (
+                            !String.IsNullOrWhiteSpace(callback) &&
+                            Uri.IsWellFormedUriString(callback, UriKind.Absolute)
+                        )
+                            await _notifier.SendAsyncNotification(new Uri(callback), sessionId.ToString());
+                        return
+                            await _repository.MakePaymentAsync(sessionId, cardDetails) ? 
+                            (IActionResult) Ok() : BadRequest(new Error(){
+                                Code = 800,
+                                Message = "Something went wrong while making payment"
+                            });
+                    }
+                    catch
+                    {
+                        return StatusCode(StatusCodes.Status500InternalServerError);
+                    }
                 }
                 default:
                     return BadRequest(new Error() 

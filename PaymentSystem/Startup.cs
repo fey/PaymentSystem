@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using PaymentSystem.Database;
 using PaymentSystem.Services.Implementations;
 using PaymentSystem.Services.Interfaces;
@@ -30,18 +31,32 @@ namespace PaymentSystem
             services.AddScoped<IUserRepository, DbUserRepository>();
             services.AddTransient<ICardValidator, CardValidator>();
 
+            Func<NpgsqlConnectionStringBuilder> builderFactory = () => {
+                var csBuilder = new NpgsqlConnectionStringBuilder();
+                    csBuilder.MaxPoolSize = 10;
+                    csBuilder.SslMode = SslMode.Require;
+                    csBuilder.TrustServerCertificate = true;
+
+                    csBuilder.Host = "ec2-54-75-244-161.eu-west-1.compute.amazonaws.com";
+                    csBuilder.Port = 5432;
+                    csBuilder.Database = "dfbncsesv2csih";
+                    csBuilder.Username = "midyteqgkntodz";
+                    csBuilder.Password = "d94919d747edb6d596b5145264e3396a5a034f706e1be49dc1c6da83b6447872";
+                return csBuilder;
+            };
+
             services.AddMvcCore()
                 .AddApiExplorer();
-            Guid startupId = Guid.NewGuid();
             services.AddDbContext<PaymentContext>(
                 builder => builder
                             .UseLazyLoadingProxies()
-                            .UseInMemoryDatabase($"Payments{startupId}")
+                            .UseNpgsql(builderFactory().ToString())
             );
 
             services.AddDbContext<UserContext>(
                 builder => builder
-                            .UseInMemoryDatabase($"Users{startupId}")
+                            .UseLazyLoadingProxies()
+                            .UseNpgsql(builderFactory().ToString())
             );
             
             services.AddSwaggerGen(c =>
