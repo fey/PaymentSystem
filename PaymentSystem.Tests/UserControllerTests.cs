@@ -45,10 +45,10 @@ namespace PaymentSystem.Controllers.Tests
         }
 
         [Theory, AutoController]
-        public void ShouldRegisterNewUser(
+        public async void ShouldRegisterNewUser(
             [NoAutoProperties]UserController controller,
             RegisterModel regInfo
-        ) => Assert.IsType<OkResult>(controller.Register(regInfo));
+        ) => Assert.IsType<OkResult>(await controller.Register(regInfo));
 
         [Theory, AutoController]
         public async void ShouldNotRegisterSameUser(
@@ -57,14 +57,14 @@ namespace PaymentSystem.Controllers.Tests
         )
         {
             await controller.Register(regInfo);
-            Assert.IsType<BadRequestObjectResult>(controller.Register(regInfo));
+            Assert.IsType<BadRequestObjectResult>(await controller.Register(regInfo));
         }
 
         [Theory, AutoController]
-        public void ShouldNotLoginInexistentUser(
+        public async void ShouldNotLoginInexistentUser(
             [NoAutoProperties]UserController controller,
             LoginModel credentials
-        ) => Assert.IsType<BadRequestObjectResult>(controller.Login(credentials));
+        ) => Assert.IsType<BadRequestObjectResult>(await controller.Login(credentials));
 
         [Theory, AutoController]
         public async void ShouldNotLoginUserByWrongPassword(
@@ -74,7 +74,7 @@ namespace PaymentSystem.Controllers.Tests
         {
             await controller.Register(regInfo);
             Assert.IsType<BadRequestObjectResult>(
-                controller.Login(new LoginModel()
+                await controller.Login(new LoginModel()
                 {
                     Login = regInfo.Username,
                     Password = regInfo.Password.GetHashCode().ToString()
@@ -89,7 +89,7 @@ namespace PaymentSystem.Controllers.Tests
         {
             await controller.Register(regInfo);
             Assert.IsType<OkResult>(
-                controller.Login(new LoginModel()
+                await controller.Login(new LoginModel()
                 {
                     Login = regInfo.Username,
                     Password = regInfo.Password

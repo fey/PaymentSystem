@@ -49,13 +49,13 @@ namespace PaymentSystem.Controllers.Tests
         }
 
         [Theory, AutoController]
-        public void ShouldGivePaymentSessionId(
+        public async void ShouldGivePaymentSessionId(
             [NoAutoProperties]PaymentController controller,
             PaymentRequest payment
         ) 
         {
             OkObjectResult result = Assert.IsType<OkObjectResult>(
-                controller.GetPaymentSession(payment)
+                await controller.GetPaymentSession(payment)
             );
             Assert.IsType<Guid>(result.Value);
         } 
