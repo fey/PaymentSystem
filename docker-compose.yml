@@ -4,6 +4,8 @@ version: '3.4'
 services:
   paymentsystem:
     image: paymentsystem
+    environment:
+      - PORT=5000
     build:
       context: .
       dockerfile: PaymentSystem/Dockerfile
