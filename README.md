@@ -8,6 +8,8 @@
 ## О размещении в Интернете
 
 Контейнеры, формируемые для сервера, хранятся в [этом](https://hub.docker.com/repository/docker/pamugk/paymentsystem "Ссылка на репозиторий DockerHub") репозитории.  
+Сервер размещён на платформе Heroku вот по [этому](https://payment--system.herokuapp.com) адресу.  
+Соответственно, OpenAPI спецификация доступна вот [тут](https://payment--system.herokuapp.com/swagger).
 
 ## О сервере
 
