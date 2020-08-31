@@ -5,9 +5,7 @@ namespace PaymentSystem.Services.Interfaces
 {
     public interface IUserRepository
     {
-        public bool AddUser(RegisterModel newUser);
-        public Task<bool> AddUserAsync(RegisterModel newUser);
-        public bool VerifyCredentials(LoginModel credentials);
-        public Task<bool> VerifyCredentialsAsync(LoginModel credentials);
+        public Task AddUserAsync(RegisterModel newUser);
+        public Task VerifyCredentialsAsync(LoginModel credentials);
     }
 }

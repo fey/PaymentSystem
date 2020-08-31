@@ -7,7 +7,7 @@ namespace PaymentSystem.Model.Dto.Payments
     {
         [Required]
         [DataType(DataType.Currency)]
-        public decimal PaymentSum { get; set; }
+        public double PaymentSum { get; set; }
         [Required]
         public string Purpose { get; set; }
         [DataType(DataType.CreditCard)]

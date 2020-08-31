@@ -90,7 +90,7 @@ namespace PaymentSystem.Tests
             string requestUrl = $"{paymentInitiationRoute}?sessionId={Uri.EscapeDataString(sessionId.ToString())}";
             response = await client.PostAsJsonAsync(requestUrl, invalidCard);
             var content = await response.Content.ReadAsStringAsync();
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [Theory, AutoData]
@@ -247,8 +247,11 @@ namespace PaymentSystem.Tests
             HttpResponseMessage response = await client.SendAsync(request);
             response = await client.PostAsJsonAsync(userRegistrationRoute, regInfo);
             response = await client.PostAsJsonAsync(userLoginRoute, credentials);
+            
+            DateTime today = DateTime.Today;
             string historyUrl = $@"{paymentHistoryRoute}?
-            periodStart={Uri.EscapeDataString("06/20")}&periodEnd={Uri.EscapeDataString("08/20")}";
+            periodStart={Uri.EscapeDataString($"{today.Month}/${today.Year}")}
+            &periodEnd={Uri.EscapeDataString($"{today.AddMonths(2).Month}/{today.AddYears(1).Year}")}";
             response = await client.GetAsync(historyUrl);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             List<PaymentRecord> payments = await response.Content.ReadFromJsonAsync<List<PaymentRecord>>();

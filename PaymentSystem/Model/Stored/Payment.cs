@@ -10,7 +10,7 @@ namespace PaymentSystem.Model.Stored
         public Guid SessionId { get; set; }
         [ForeignKey("SessionId")]
         public virtual Session AssociatedSession { get; set; }
-        public Decimal Sum { get; set; }
+        public Double Sum { get; set; }
         public String Purpose { get; set; }
         public String CardNumber { get; set; }
     }

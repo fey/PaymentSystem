@@ -5,6 +5,7 @@ using AutoFixture.Xunit2;
 using Microsoft.EntityFrameworkCore;
 using PaymentSystem.Database;
 using PaymentSystem.Model.Dto.Auth;
+using PaymentSystem.Services.Exceptions;
 using PaymentSystem.Services.Interfaces;
 using Xunit;
 
@@ -37,16 +38,16 @@ namespace PaymentSystem.Services.Implementations.Tests
         }
 
         [Theory, AutoServices]
-        public void ShouldAddUser(DbUserRepository repository) =>
-            Assert.True(repository.AddUser(new RegisterModel()
+        public async void ShouldAddUser(DbUserRepository repository) =>
+            await repository.AddUserAsync(new RegisterModel()
             {
                 Username = "логин",
                 Password = "пороль",
                 PasswordConfirmation = "пороль"
-            }));
+            });
 
         [Theory, AutoServices]
-        public void ShouldNotAddUserWithDuplicateLogin(DbUserRepository repository)
+        public async void ShouldNotAddUserWithDuplicateLogin(DbUserRepository repository)
         {
             RegisterModel registrationInfo = new RegisterModel()
             {
@@ -54,30 +55,30 @@ namespace PaymentSystem.Services.Implementations.Tests
                 Password = "пороль",
                 PasswordConfirmation = "пороль"
             };
-            repository.AddUser(registrationInfo);
-            Assert.False(repository.AddUser(registrationInfo));
+            await repository.AddUserAsync(registrationInfo);
+            await Assert.ThrowsAsync<RegistrationException>(() => repository.AddUserAsync(registrationInfo));
         }
 
         [Theory, AutoServices]
-        public void ShouldNotVerifyNotAddedUser(
+        public async void ShouldNotVerifyNotAddedUser(
             DbUserRepository repository, LoginModel credentials) =>
-            Assert.False(repository.VerifyCredentials(credentials));
+            await Assert.ThrowsAsync<AuthenticationException>(() => repository.VerifyCredentialsAsync(credentials));
 
         [Theory, AutoServices]
-        public void ShouldVerifyAddedUser(DbUserRepository repository)
+        public async void ShouldVerifyAddedUser(DbUserRepository repository)
         {
-            repository.AddUser(new RegisterModel()
+            await repository.AddUserAsync(new RegisterModel()
             {
                 Username = "логин",
                 Password = "пороль",
                 PasswordConfirmation = "пороль"
             });
-            Assert.True(repository.VerifyCredentials(
+            await repository.VerifyCredentialsAsync(
                 new LoginModel(){
                     Login = "логин",
                     Password = "пороль",
                 }
-            ));
+            );
         }
     }
 }

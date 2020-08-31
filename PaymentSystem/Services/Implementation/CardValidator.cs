@@ -1,13 +1,13 @@
 using System;
-using PaymentSystem.Model;
 using PaymentSystem.Model.Dto.Payments;
+using PaymentSystem.Services.Exceptions;
 using PaymentSystem.Services.Interfaces;
 
 namespace PaymentSystem.Services.Implementations
 {
     public class CardValidator: ICardValidator
     {
-        private CardValidationResults SimplifiedLuhnAlgorithm(string cardNumber)
+        private void SimplifiedLuhnAlgorithm(string cardNumber)
         {
             int parity = cardNumber.Length % 2, sum = 0;
             for (int i = 0; i < cardNumber.Length; i++)
@@ -20,27 +20,27 @@ namespace PaymentSystem.Services.Implementations
                     sum += sumPart;
                 }
                 else
-                    return CardValidationResults.InvalidNumber;
-            return sum % 10 == 0 ?
-                CardValidationResults.Valid :
-                CardValidationResults.InvalidNumber;
+                    throw new InvalidCardNumberException();
+            
+            if (sum % 10 != 0)
+                throw new InvalidCardNumberException();
         }
 
-        public CardValidationResults ValidateCard(Card card)
+        public void ValidateCard(Card card)
         {
+            //BASIC VALIDATION
             if (String.IsNullOrWhiteSpace(card.Number))
-                return CardValidationResults.InvalidNumber;
+                throw new InvalidCardNumberException();
             if (String.IsNullOrWhiteSpace(card.SecurityCode))
-                return CardValidationResults.InvalidSecurityCode;
-            if (
-                card.RegistrationDate.HasValue && 
+                throw new InvalidSecurityCodeException();
+            if (card.RegistrationDate.HasValue && 
                 card.RegistrationDate.Value.Date > DateTime.Today)
-                return CardValidationResults.Expired;
-            if (
-                card.ExpirationDate.HasValue &&
+                throw new ExpiredCardException();
+            if (card.ExpirationDate.HasValue &&
                 card.ExpirationDate.Value.Date < DateTime.Today)
-                return CardValidationResults.Expired;
-            return SimplifiedLuhnAlgorithm(card.Number);
+                throw new ExpiredCardException();
+
+            SimplifiedLuhnAlgorithm(card.Number);
         }
     }
 }

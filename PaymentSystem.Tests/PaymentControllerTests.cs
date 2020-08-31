@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PaymentSystem.Database;
 using PaymentSystem.Model.Dto.Payments;
+using PaymentSystem.Services.Exceptions;
 using PaymentSystem.Services.Implementations;
 using PaymentSystem.Services.Interfaces;
 using Xunit;
@@ -64,8 +65,8 @@ namespace PaymentSystem.Controllers.Tests
         public async void ShouldNotMakePaymentForInvalidSessionId(
             [NoAutoProperties]PaymentController controller,
             Card card
-        ) => Assert.IsType<NotFoundObjectResult>(
-            await controller.InitiatePayment(card, Guid.Empty, null)
+        ) => await Assert.ThrowsAsync<SessionException>(
+            () => controller.InitiatePayment(card, Guid.Empty, null)
         );
 
         [Theory, AutoController]
@@ -80,8 +81,8 @@ namespace PaymentSystem.Controllers.Tests
                 SecurityCode = "404"
             };
             OkObjectResult result = (OkObjectResult)await controller.GetPaymentSession(payment);
-            Assert.IsType<BadRequestObjectResult>(
-                await controller.InitiatePayment(invalidCard, (Guid)result.Value, null)
+            await Assert.ThrowsAsync<InvalidCardNumberException>(() =>
+                controller.InitiatePayment(invalidCard, (Guid)result.Value, null)
             );
         }
 
@@ -96,9 +97,7 @@ namespace PaymentSystem.Controllers.Tests
                 SecurityCode = "404"
             };
             OkObjectResult result = (OkObjectResult)await controller.GetPaymentSession(payment);
-            Assert.IsType<OkResult>(
-                await controller.InitiatePayment(validCard, (Guid)result.Value, null)
-            );
+            await controller.InitiatePayment(validCard, (Guid)result.Value, null);
         }
     }
 }

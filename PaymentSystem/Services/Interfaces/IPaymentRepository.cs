@@ -7,13 +7,9 @@ namespace PaymentSystem.Services.Interfaces
 {
     public interface IPaymentRepository
     {
-        IEnumerable<PaymentRecord> GetPaymentHistory(DateTime start, DateTime end);
         IAsyncEnumerable<PaymentRecord> GetPaymentHistoryAsync(DateTime start, DateTime end);
-        bool MakePayment(Guid sessionId, Card paymentCard);
-        Task<bool> MakePaymentAsync(Guid sessionId, Card paymentCard);
-        Guid RecordPayment(PaymentRequest payment);
+        Task MakePaymentAsync(Guid sessionId, Card paymentCard);
         Task<Guid> RecordPaymentAsync(PaymentRequest payment);
-        bool SessionIsActive(Guid sessionId);
-        Task<bool> SessionIsActiveAsync(Guid sessionId);
+        Task SessionIsActiveAsync(Guid sessionId);
     }
 }
